@@ -97,7 +97,7 @@ export default function Sidebar() {
                     </label>
                     <textarea
                       id="prompt-input"
-                      rows="4"
+                      rows={4}
                       className="w-full border-0 bg-slate-50 px-0 text-base text-slate-900 focus:outline-none dark:bg-slate-800 dark:text-slate-200 dark:placeholder-slate-400"
                       placeholder="Enter your prompt"
                       required
