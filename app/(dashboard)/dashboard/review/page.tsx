@@ -86,7 +86,7 @@ const items = [
 
 const Review = () => {
   return (
-    <div className="scroller  relative z-20 h-[100vh] w-[90%] overflow-auto ">
+    <div className="scroller mt-10 relative z-20 h-[100vh] w-[90%] overflow-auto ">
       <ReviewTableNew />
     </div>
   );
