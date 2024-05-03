@@ -5,15 +5,15 @@ function ReviewGenerator() {
   const [reviewText, setReviewText] = useState("");
   const [generatedResponse, setGeneratedResponse] = useState("");
 
-  const handleReviewChange = (event) => {
+  const handleReviewChange = (event: any) => {
     setReviewText(event.target.value);
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: any) => {
     event.preventDefault();
 
     // Simulate sending review to backend for AI generation (replace with actual API call)
-    const response = await simulateGenerateResponse(reviewText);
+    const response: any = await simulateGenerateResponse(reviewText);
     setGeneratedResponse(response);
   };
 
@@ -27,7 +27,6 @@ function ReviewGenerator() {
       <form onSubmit={handleSubmit} className="flex flex-col">
         <textarea
           id="review-input"
-          rows="8"
           placeholder="Paste the customer review here..."
           className="p-4 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring focus:ring-blue-500"
           value={reviewText}
@@ -52,7 +51,7 @@ function ReviewGenerator() {
 }
 
 // Simulate sending review to backend (replace with actual API call)
-const simulateGenerateResponse = async (reviewText) => {
+const simulateGenerateResponse = async (reviewText: any) => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(
