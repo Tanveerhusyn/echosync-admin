@@ -8,7 +8,7 @@ import { columns } from "./segments/columns";
 import { DataTable } from "./segments/data-table";
 import { UserNav } from "./segments/user-nav";
 import { taskSchema } from "./data/schema";
-import { ReviewHeader } from "../../../components/custom/ReviewHeader";
+
 export const metadata: Metadata = {
   title: "Tasks",
   description: "A task and issue tracker build using Tanstack Table.",
