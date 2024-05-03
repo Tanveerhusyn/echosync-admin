@@ -19,6 +19,9 @@ import GoogleSignInButton from "../github-auth-button";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Enter a valid email address" }),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters" }),
 });
 
 type UserFormValue = z.infer<typeof formSchema>;
@@ -29,6 +32,7 @@ export default function UserAuthForm() {
   const [loading, setLoading] = useState(false);
   const defaultValues = {
     email: "demo@gmail.com",
+    password: "",
   };
   const form = useForm<UserFormValue>({
     resolver: zodResolver(formSchema),
