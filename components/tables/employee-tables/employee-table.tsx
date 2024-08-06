@@ -813,7 +813,7 @@ export function ReviewTableNew() {
   ];
   return (
     <>
-      <div className="md:hidden bg-white">
+      <div className="md:hidden bg-[#eef2f5]">
         <Image
           src="/examples/tasks-light.png"
           width={1280}

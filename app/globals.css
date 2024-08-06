@@ -86,13 +86,13 @@
   }
 }
 
-
-::-webkit-scrollbar {
-  display: none;
+ 
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
 }
 
-/* Hide scrollbar for IE, Edge, and Firefox */
-* {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }
