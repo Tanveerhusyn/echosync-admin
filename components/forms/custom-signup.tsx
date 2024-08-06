@@ -115,7 +115,7 @@ export default function CustomSignUp() {
     <div className="flex items-center justify-center min-h-screen bg-transparent">
       <div className="w-full max-w-lg p-8 bg-white rounded-2xl shadow-lg">
         <h2 className="text-2xl font-bold text-center">
-          Let's Get Your Company Started{" "}
+          Lets Get Your Company Started{" "}
           <span role="img" aria-label="building">
             🏢
           </span>

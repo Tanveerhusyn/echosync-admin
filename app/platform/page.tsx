@@ -220,7 +220,7 @@ const DisabledPlatformCard = ({ Logo, name }) => (
     </div>
     <div className="p-6">
       <p className="text-gray-600 mb-6">
-        We're working on integrating {name}. <br />
+        We are working on integrating {name}. <br />
         Stay tuned for updates!
       </p>
       <button

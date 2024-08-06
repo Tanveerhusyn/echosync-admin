@@ -170,7 +170,7 @@ export default function CustomSignIn() {
             )}
           </Button>
           <p className="mt-4 text-center text-sm text-gray-600">
-            Don't have an account?{" "}
+            Dont have an account?{" "}
             <a href="/sign-up" className="text-blue-600">
               Sign up
             </a>

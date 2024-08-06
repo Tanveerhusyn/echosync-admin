@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import useTypeWriter from "@/hooks/useTypeWriter";
 import Link from "next/link";
-import { action } from "../../../actions";
+import action from "../../../actions";
 
 import {
   Filter,
@@ -236,9 +236,7 @@ const Modal = ({ isOpen, onClose, review }) => {
                 transition={{ delay: 0.2 }}
                 className="bg-gray-100 p-4 rounded-lg mb-6"
               >
-                <p className="text-gray-800 text-lg italic">
-                  "{review.comment}"
-                </p>
+                <p className="text-gray-800 text-lg italic">{review.comment}</p>
               </motion.div>
 
               <div className="mb-6">
