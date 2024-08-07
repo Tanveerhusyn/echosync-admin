@@ -10,6 +10,12 @@ export interface NavItem {
   description?: string;
 }
 
+interface User {
+  name: string;
+  email: string;
+  avatar: string;
+}
+
 export interface NavItemWithChildren extends NavItem {
   items: NavItemWithChildren[];
 }
