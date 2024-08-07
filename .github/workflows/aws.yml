@@ -25,10 +25,13 @@ jobs:
           node-version: '20.x'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+
+      - name: Build the project
+        run: npm run build
 
       - name: Zip the repository
-        run: zip -r ${{env.DEPLOY_PACKAGE_NAME}} ./ -x '*.git*'
+        run: zip -r ${{env.DEPLOY_PACKAGE_NAME}} ./ -x '*.git*' 'node_modules/*'
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
