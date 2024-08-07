@@ -30,8 +30,8 @@ jobs:
       - name: Build the project
         run: npm run build
 
-      - name: Zip the repository
-        run: zip -r ${{env.DEPLOY_PACKAGE_NAME}} ./ -x '*.git*' 'node_modules/*'
+      - name: Zip the repository including node_modules
+        run: zip -r ${{env.DEPLOY_PACKAGE_NAME}} ./ -x '*.git*'
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
