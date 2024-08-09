@@ -12,8 +12,8 @@ import { authOptions } from "@/lib/auth-options";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Next Shadcn",
-  description: "Basic dashboard with Next.js and Shadcn",
+  title: "Echosync AI",
+  description: "AI-powered business intelligence for the modern entrepreneur",
 };
 
 export default async function RootLayout({
