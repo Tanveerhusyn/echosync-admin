@@ -1,58 +1,27 @@
-env:
-  S3_BUCKET_NAME: "elasticbeanstalk-us-east-1-975050204702"
-  EBS_APPLICATION_NAME: "echo-admin-dashboard"
-  EBS_ENVIRONMENT_NAME: "echo-admin-dashboard-env"
-  AWS_REGION: "us-east-1"
-  DEPLOY_PACKAGE_NAME: "node-app-${{github.sha}}.zip"
+name: Deploy to EC2
 
 on:
   push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
-  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Clone the repository
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20.x'
+    - name: Install SSH key
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      - name: Install dependencies
-        run: npm ci
+    - name: Copy files to EC2
+      run: |
+        scp -o StrictHostKeyChecking=no -r ./* ubuntu@your-ec2-public-ip:~/echosync-admin/
 
-      - name: Build the project
-        run: npm run build
-
-      - name: Zip the repository including node_modules
-        run: zip -r ${{env.DEPLOY_PACKAGE_NAME}} ./ -x '*.git*'
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{secrets.ACCESS_KEY_ID}}
-          aws-secret-access-key: ${{secrets.SECRET_ACCESS_KEY}}
-          aws-region: ${{env.AWS_REGION}}
-
-      - name: Upload Deployment to S3 Bucket
-        run: aws s3 cp ${{env.DEPLOY_PACKAGE_NAME}} s3://${{env.S3_BUCKET_NAME}}/
-
-      - name: Create new Elastic Beanstalk Application Version
-        run: |
-          aws elasticbeanstalk create-application-version \
-          --application-name ${{env.EBS_APPLICATION_NAME}} \
-          --source-bundle S3Bucket="${{env.S3_BUCKET_NAME}}",S3Key="${{env.DEPLOY_PACKAGE_NAME}}" \
-          --version-label "ver-${{ github.sha }}" \
-          --description "commit-sha-${{ github.sha }}"
-
-      - name: Deploy new Elastic Beanstalk Application Version
-        run: aws elasticbeanstalk update-environment --environment-name ${{env.EBS_ENVIRONMENT_NAME}} --version-label "ver-${{ github.sha }}"
-
-      - name: Print Success Message on Completion
-        run: echo "CI/CD pipeline ran successfully"
+    - name: SSH into EC2 and run deploy script
+      run: |
+        ssh -o StrictHostKeyChecking=no ubuntu@your-ec2-public-ip 'bash ~/echosync-admin/deploy.sh'
