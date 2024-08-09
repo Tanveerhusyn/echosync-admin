@@ -144,9 +144,7 @@ async function fetchExistingUser(email: string | null | undefined) {
   if (!email) return null;
 
   try {
-    const apiUrl =
-      process.env.NEXT_PUBLIC_API_URL ||
-      "http://echosync-backend-new-env.eba-2bqygaft.us-east-1.elasticbeanstalk.com";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.echosync.ai";
     const response = await fetch(`${apiUrl}/users/get-user`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -170,9 +168,7 @@ async function checkIfNewUser(
   if (!email) return true;
 
   try {
-    const apiUrl =
-      process.env.NEXT_PUBLIC_API_URL ||
-      "http://echosync-backend-new-env.eba-2bqygaft.us-east-1.elasticbeanstalk.com";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.echosync.ai";
     const response = await fetch(`${apiUrl}/users/check-email`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -189,7 +185,7 @@ async function checkIfNewUser(
 
 export async function connectGoogleBusiness() {
   const response = await fetch(
-    `http://echosync-backend-new-env.eba-2bqygaft.us-east-1.elasticbeanstalk.com/reviews/connect-google-business`,
+    `https://api.echosync.ai/reviews/connect-google-business`,
   );
 
   const result = await response.json();

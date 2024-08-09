@@ -66,7 +66,7 @@ const Modal = ({ isOpen, onClose, review }) => {
   const generateInsights = async () => {
     try {
       const res = await fetch(
-        "http://echosync-backend-new-env.eba-2bqygaft.us-east-1.elasticbeanstalk.com/reviews/generate-insights",
+        "https://api.echosync.ai/reviews/generate-insights",
         {
           method: "POST",
           headers: {
@@ -92,7 +92,7 @@ const Modal = ({ isOpen, onClose, review }) => {
     setIsGenerating(true);
     try {
       const res = await fetch(
-        "http://echosync-backend-new-env.eba-2bqygaft.us-east-1.elasticbeanstalk.com/reviews/generate-response",
+        "https://api.echosync.ai/reviews/generate-response",
         {
           method: "POST",
           headers: {
@@ -136,7 +136,7 @@ const Modal = ({ isOpen, onClose, review }) => {
       const accessToken = connectedPlatform.accessToken;
 
       const res = await fetch(
-        `http://echosync-backend-new-env.eba-2bqygaft.us-east-1.elasticbeanstalk.com/reviews/reply-to-review?accessToken=${accessToken}&email=${session.user.email}`,
+        `https://api.echosync.ai/reviews/reply-to-review?accessToken=${accessToken}&email=${session.user.email}`,
         {
           method: "POST",
           headers: {
@@ -568,7 +568,7 @@ const ReviewsPage = () => {
           const connectedPlatform = session.user.googleBusinessProfileConnected;
           console.log(connectedPlatform);
           const res = await fetch(
-            `http://echosync-backend-new-env.eba-2bqygaft.us-east-1.elasticbeanstalk.com/reviews/reviews?accessToken=${connectedPlatform.accessToken}&email=${session.user.email}`,
+            `https://api.echosync.ai/reviews/reviews?accessToken=${connectedPlatform.accessToken}&email=${session.user.email}`,
             {
               headers: {
                 Authorization: `Bearer ${connectedPlatform.accessToken}`,

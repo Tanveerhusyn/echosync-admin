@@ -99,7 +99,7 @@ const ReviewDashboard = () => {
           console.log("Fetching reviews...", session.user);
           const connectedPlatform = session.user.googleBusinessProfileConnected;
           const res = await fetch(
-            `http://echosync-backend-new-env.eba-2bqygaft.us-east-1.elasticbeanstalk.com/reviews/reviews?accessToken=${connectedPlatform.accessToken}&email=${session.user.email}`,
+            `https://api.echosync.ai/reviews/reviews?accessToken=${connectedPlatform.accessToken}&email=${session.user.email}`,
             {
               headers: {
                 Authorization: `Bearer ${connectedPlatform.accessToken}`,

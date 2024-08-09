@@ -51,7 +51,7 @@ export default function BusinessInfo() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `http://echosync-backend-new-env.eba-2bqygaft.us-east-1.elasticbeanstalk.com/users/complete-google-signup`,
+        `https://api.echosync.ai/users/complete-google-signup`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

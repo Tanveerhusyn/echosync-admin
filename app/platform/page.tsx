@@ -94,7 +94,7 @@ const ConnectGoogleCard = () => {
     setIsConnecting(true);
     try {
       const response = await fetch(
-        "http://echosync-backend-new-env.eba-2bqygaft.us-east-1.elasticbeanstalk.com/reviews/connect-google-business",
+        "https://api.echosync.ai/reviews/connect-google-business",
         {
           method: "GET",
           headers: {
@@ -118,7 +118,7 @@ const ConnectGoogleCard = () => {
   const handleGoogleCallback = async (code, email) => {
     try {
       const response = await fetch(
-        "http://echosync-backend-new-env.eba-2bqygaft.us-east-1.elasticbeanstalk.com/reviews/google-business-callback",
+        "https://api.echosync.ai/reviews/google-business-callback",
         {
           method: "POST",
           headers: {

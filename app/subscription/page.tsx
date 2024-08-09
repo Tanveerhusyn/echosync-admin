@@ -110,7 +110,7 @@ const SubscriptionPage = () => {
     try {
       const stripe = await stripePromise;
       const response = await fetch(
-        "http://echosync-backend-new-env.eba-2bqygaft.us-east-1.elasticbeanstalk.com/payment/create-checkout-session",
+        "https://api.echosync.ai/payment/create-checkout-session",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

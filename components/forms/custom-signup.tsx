@@ -79,16 +79,13 @@ export default function CustomSignUp() {
     };
 
     try {
-      const response = await fetch(
-        "http://echosync-backend-new-env.eba-2bqygaft.us-east-1.elasticbeanstalk.com/users/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
+      const response = await fetch("https://api.echosync.ai/users/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify(payload),
+      });
 
       const result = await response.json();
 
