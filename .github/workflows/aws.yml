@@ -20,8 +20,8 @@ jobs:
 
     - name: Copy files to EC2
       run: |
-        scp -o StrictHostKeyChecking=no -r ./* ubuntu@your-ec2-public-ip:~/echosync-admin/
+        scp -o StrictHostKeyChecking=no -r ./* ubuntu@54.242.100.23:~/echosync-admin/
 
     - name: SSH into EC2 and run deploy script
       run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@your-ec2-public-ip 'bash ~/echosync-admin/deploy.sh'
+        ssh -o StrictHostKeyChecking=no ubuntu@54.242.100.23 'bash ~/echosync-admin/deploy.sh'
