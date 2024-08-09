@@ -36,6 +36,8 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
     return colors[index];
   };
 
+  console.log("SESSION INSIDE HEADER", session);
+
   const userInitial = getInitial(session?.user?.name);
   const avatarColor = getRandomColor(session?.user?.name);
 
