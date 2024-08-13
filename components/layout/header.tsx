@@ -80,22 +80,22 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 ></path>
                 <path
                   d="M548.571429 678.765714c-56.32-5.12-125.074286 27.794286-125.074286 27.794286s10.971429-64.365714-6.582857-122.148571-65.828571-111.177143-65.828572-111.177143l198.217143 40.228571c3.657143 145.554286 1.462857 112.64-0.731428 165.302857z"
-                  fill="#873dec"
+                  fill="#181c31"
                 ></path>
                 <path
                   d="M551.497143 678.765714c56.32-5.12 125.074286 27.794286 125.074286 27.794286s-10.971429-64.365714 6.582857-122.148571 65.828571-111.177143 65.828571-111.177143l-198.217143 40.228571c-3.657143 145.554286-1.462857 112.64 0.731429 165.302857z"
-                  fill="#873dec"
+                  fill="#181c31"
                 ></path>
               </g>
             </svg>
             <h2 className="text-xl font-bold text-[#4479f4]">
-              Echo<span className="text-[#873dec]">Sync</span>
+              Echo<span className="">Sync</span>
             </h2>
           </div>
         </div>
 
         <div className="flex-grow max-w-xl mx-4">
-          <div className="relative">
+          {/* <div className="relative">
             <motion.div
               animate={{
                 scale: isSearchFocused ? 1.05 : 1,
@@ -115,7 +115,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 size={18}
               />
             </motion.div>
-          </div>
+          </div> */}
         </div>
 
         <div className="flex items-center space-x-4">

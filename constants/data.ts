@@ -125,7 +125,7 @@ export const navItems: NavItem[] = [
     label: "reviews",
   },
   {
-    title: "Generate Review",
+    title: "Generate Manually",
     href: "/dashboard/generate-review",
     icon: "kanban",
     label: "reviews",

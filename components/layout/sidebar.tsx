@@ -44,7 +44,7 @@ const DashboardNav = ({ items, setOpen }: DashboardNavProps) => {
                 className={cn(
                   "group flex items-center rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200",
                   path === item.href
-                    ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white"
+                    ? "bg-[#181c31] text-white"
                     : "text-gray-700 hover:bg-blue-50",
                   item.disabled && "cursor-not-allowed opacity-60",
                 )}

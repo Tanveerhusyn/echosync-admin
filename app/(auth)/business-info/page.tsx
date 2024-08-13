@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -75,7 +75,10 @@ export default function BusinessInfo() {
             needsBusinessInfo: false,
           },
         });
-        router.push("/dashboard");
+
+        const forced_session = await getSession({ force: true });
+        console.log("Force Session", forced_session);
+        // router.push("/dashboard");
       } else {
         throw new Error(
           result.message || "Failed to save business information",

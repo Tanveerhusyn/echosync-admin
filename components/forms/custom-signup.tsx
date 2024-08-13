@@ -242,7 +242,7 @@ export default function CustomSignUp() {
 
           <Button
             type="submit"
-            className="w-full bg-[#0A2472] rounded-2xl p-6 text-white"
+            className="w-full bg-[#181c31] rounded-2xl p-6 text-white"
             disabled={isLoading}
           >
             {isLoading ? (

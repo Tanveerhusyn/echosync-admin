@@ -24,6 +24,7 @@ import {
 } from "recharts";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { motion } from "framer-motion";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.echosync.ai";
 
 const CreativeLoader = () => {
   const iconVariants = {
@@ -99,7 +100,7 @@ const ReviewDashboard = () => {
           console.log("Fetching reviews...", session.user);
           const connectedPlatform = session.user.googleBusinessProfileConnected;
           const res = await fetch(
-            `https://api.echosync.ai/reviews/reviews?accessToken=${connectedPlatform.accessToken}&email=${session.user.email}`,
+            `${apiUrl}/reviews/reviews?accessToken=${connectedPlatform.accessToken}&email=${session.user.email}`,
             {
               headers: {
                 Authorization: `Bearer ${connectedPlatform.accessToken}`,

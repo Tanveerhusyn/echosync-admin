@@ -71,7 +71,7 @@ export default function CustomSignIn() {
   const handleGoogleSignIn = () => {
     // Implement Google sign-in logic here
     console.log("Google sign-in clicked");
-    signIn("google", { callbackUrl: callbackUrl ?? "/dashboard" });
+    signIn("google");
   };
 
   return (
@@ -158,7 +158,7 @@ export default function CustomSignIn() {
           </div>
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white"
+            className="w-full bg-[#181c31] rounded-2xl p-6 text-white"
           >
             {loading ? (
               <>

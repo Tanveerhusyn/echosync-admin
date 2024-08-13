@@ -191,7 +191,7 @@ const ConnectGoogleCard = () => {
               // });
               handleGoogleSignIn();
             }}
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-3 px-4 rounded-full transition duration-300 flex items-center justify-center"
+            className="w-full bg-[#181c31] hover:from-blue-600 hover:to-purple-600 text-white font-bold py-3 px-4 rounded-full transition duration-300 flex items-center justify-center"
           >
             Connect Google Business
             <ChevronRight className="ml-2 w-5 h-5" />
@@ -247,7 +247,7 @@ const FeatureCard = ({ icon: Icon, title, description }) => (
 
 const ConnectPlatformsPage = () => {
   return (
-    <div className="bg-gradient-to-br from-blue-900 to-purple-800 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div className="bg-[#181c31] min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}

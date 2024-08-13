@@ -13,26 +13,16 @@ export default function AuthWrapper({ children, session }: AuthWrapperProps) {
   const router = useRouter();
 
   useEffect(() => {
-    if (
-      session?.user?.needsBusinessInfo == false &&
-      session?.user?.googleBusinessProfileConnected?.connected == true
-    ) {
-      router.push("/dashboard");
-    } else if (session?.user?.needsBusinessInfo == false) {
-      router.push("/platform");
-
-      console.log("redirecting to /connect-google-business", session);
-    } else if (session?.user?.needsBusinessInfo == true) {
-      router.push("/business-info");
-
-      console.log("redirecting to /business-info", session);
-    } else if (
-      session != null &&
-      !session?.user?.googleBusinessProfileConnected
-    ) {
-      router.push("/platform");
-
-      console.log("redirecting to /platform", session);
+    if (session?.user) {
+      if (session.user.status === "incomplete") {
+        router.push("/business-info");
+      } else if (session.user.status === "subscription") {
+        router.push("/subscription");
+      } else if (session.user.status === "complete") {
+        router.push("/dashboard");
+      } else if (session.user.status === "platform") {
+        router.push("/platform");
+      }
     }
 
     console.log("session inside wrapper", session);

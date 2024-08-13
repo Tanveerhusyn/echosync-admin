@@ -1,6 +1,9 @@
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { redirect } from "next/dist/server/api-utils";
+
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.echosync.ai";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -31,7 +34,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          const response = await fetch(`https://api.echosync.ai/users/login`, {
+          const response = await fetch(`${apiUrl}/users/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -63,6 +66,32 @@ export const authOptions: NextAuthOptions = {
           user.isNewUser = isNewUser;
 
           if (isNewUser) {
+            const payload = {
+              email: profile.email,
+              password: "",
+              agreeToPolicy: true,
+              isGoogleUser: true,
+            };
+
+            try {
+              const response = await fetch(
+                "https://api.echosync.ai/users/register",
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(payload),
+                },
+              );
+
+              const result = await response.json();
+
+              console.log(result, "Registration Result");
+            } catch (error) {
+              console.log("An error occurred. Please try again.");
+            }
+
             user.googleProfile = {
               email: profile?.email,
               name: profile?.name,
@@ -95,19 +124,30 @@ export const authOptions: NextAuthOptions = {
         token.needsBusinessInfo = user.isNewUser ? true : false;
       }
 
-      // if (trigger === "signIn") {
-      //   if (token.isNewUser && token.needsBusinessInfo) {
-      //     token.redirectUrl = "/business-info";
-      //   } else if (!token.googleBusinessProfileConnected) {
-      //     token.redirectUrl = "/connect-google-business";
-      //   } else {
-      //     token.redirectUrl = "/dashboard";
-      //   }
+      // if (token.isNewUser && token.needsBusinessInfo) {
+      //   token.redirectUrl = "/business-info";
+      // } else if (!token.googleBusinessProfileConnected) {
+      //   token.redirectUrl = "/connect-google-business";
+      // } else {
+      //   token.redirectUrl = "/dashboard";
       // }
+
+      console.log("JWT token:", token);
 
       return token;
     },
+
     async session({ session, token }) {
+      console.log("Session token:", token);
+      let status = "";
+      let latestUser = token.user;
+      try {
+        const res = await fetchStatus(token.user.email);
+        status = res.status;
+        latestUser = res.user;
+      } catch (error) {
+        console.error("Error fetching user status:", error);
+      }
       return {
         ...session,
         user: {
@@ -116,6 +156,9 @@ export const authOptions: NextAuthOptions = {
           accessToken: token.accessToken,
           googleProfile: token.googleProfile,
           needsBusinessInfo: token.needsBusinessInfo,
+          date: new Date(),
+          status: status,
+          ...latestUser,
         },
         redirectUrl: token.redirectUrl,
       };
@@ -144,7 +187,7 @@ async function fetchExistingUser(email: string | null | undefined) {
   if (!email) return null;
 
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.echosync.ai";
+    // const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.echosync.ai";
     const response = await fetch(`${apiUrl}/users/get-user`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -159,6 +202,26 @@ async function fetchExistingUser(email: string | null | undefined) {
     return null;
   }
 }
+async function fetchStatus(email: string | null | undefined) {
+  console.log("Fetching Status user:", email);
+  if (!email) return null;
+
+  try {
+    // const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.echosync.ai";
+    const response = await fetch(`https://api.echosync.ai/users/user-status`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    const data = await response.json();
+    console.log("Status:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching Status user:", error);
+    return null;
+  }
+}
 
 // This function should be implemented to check if the user exists in your database
 async function checkIfNewUser(
@@ -168,7 +231,7 @@ async function checkIfNewUser(
   if (!email) return true;
 
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.echosync.ai";
+    // const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.echosync.ai";
     const response = await fetch(`${apiUrl}/users/check-email`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -176,6 +239,7 @@ async function checkIfNewUser(
     });
 
     const data = await response.json();
+    console.log("User existence data:", data);
     return data.isNewUser;
   } catch (error) {
     console.error("Error checking user existence:", error);
@@ -184,9 +248,7 @@ async function checkIfNewUser(
 }
 
 export async function connectGoogleBusiness() {
-  const response = await fetch(
-    `https://api.echosync.ai/reviews/connect-google-business`,
-  );
+  const response = await fetch(`${apiUrl}/reviews/connect-google-business`);
 
   const result = await response.json();
   return result;

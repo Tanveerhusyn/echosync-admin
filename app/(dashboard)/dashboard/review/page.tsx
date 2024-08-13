@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import useTypeWriter from "@/hooks/useTypeWriter";
 import Link from "next/link";
 import action from "../../../actions";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.echosync.ai";
+import BulkResponseModal from "@/components/custom/BulkResponseModal";
 
 import {
   Filter,
@@ -65,22 +67,19 @@ const Modal = ({ isOpen, onClose, review }) => {
 
   const generateInsights = async () => {
     try {
-      const res = await fetch(
-        "https://api.echosync.ai/reviews/generate-insights",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            business_name: "Echosync",
-            business_context:
-              "Echosync is an AI-powered review management platform that helps businesses efficiently manage and respond to customer feedback, enhance their online reputation, and gain actionable insights from reviews.",
-            user_review: review.comment,
-            reviewer_name: review.reviewer.displayName,
-          }),
+      const res = await fetch(`${apiUrl}/reviews/generate-insights`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          business_name: "Echosync",
+          business_context:
+            "Echosync is an AI-powered review management platform that helps businesses efficiently manage and respond to customer feedback, enhance their online reputation, and gain actionable insights from reviews.",
+          user_review: review.comment,
+          reviewer_name: review.reviewer.displayName,
+        }),
+      });
       const data = await res.json();
       setInsights(data.insights);
     } catch (error) {
@@ -91,23 +90,20 @@ const Modal = ({ isOpen, onClose, review }) => {
   const generateAIResponse = async () => {
     setIsGenerating(true);
     try {
-      const res = await fetch(
-        "https://api.echosync.ai/reviews/generate-response",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            business_name: "Echosync",
-            business_context:
-              "Echosync is an AI-powered review management platform that helps businesses efficiently manage and respond to customer feedback, enhance their online reputation, and gain actionable insights from reviews.",
-            user_review: review.comment,
-            reviewer_name: review.reviewer.displayName,
-            insights: insights,
-          }),
+      const res = await fetch(`${apiUrl}/reviews/generate-response`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          business_name: "Echosync",
+          business_context:
+            "Echosync is an AI-powered review management platform that helps businesses efficiently manage and respond to customer feedback, enhance their online reputation, and gain actionable insights from reviews.",
+          user_review: review.comment,
+          reviewer_name: review.reviewer.displayName,
+          insights: insights,
+        }),
+      });
       const data = await res.json();
       setAiResponse(data.response); // Set the AI-generated response
       setEditableResponse(""); // Clear the editable response to allow typewriter effect to show
@@ -136,7 +132,7 @@ const Modal = ({ isOpen, onClose, review }) => {
       const accessToken = connectedPlatform.accessToken;
 
       const res = await fetch(
-        `https://api.echosync.ai/reviews/reply-to-review?accessToken=${accessToken}&email=${session.user.email}`,
+        `${apiUrl}/reviews/reply-to-review?accessToken=${accessToken}&email=${session.user.email}`,
         {
           method: "POST",
           headers: {
@@ -186,7 +182,7 @@ const Modal = ({ isOpen, onClose, review }) => {
             className="bg-white rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center p-6 bg-blue-500 text-white">
+            <div className="flex justify-between items-center p-6 bg-[#181c31] text-white">
               <h2 className="text-2xl font-bold">Review Insights</h2>
               <button
                 onClick={onClose}
@@ -267,7 +263,7 @@ const Modal = ({ isOpen, onClose, review }) => {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full flex items-center justify-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300"
+                  className="w-full flex items-center justify-center px-4 py-2 bg-[#181c31] text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300"
                   onClick={generateAIResponse}
                   disabled={isGenerating}
                 >
@@ -305,7 +301,7 @@ const Modal = ({ isOpen, onClose, review }) => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center px-6 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
+                className="flex items-center px-6 py-2 bg-[#181c31] text-white rounded-full hover:bg-blue-600 transition-colors"
                 onClick={handleSendResponse}
                 disabled={isSending}
               >
@@ -414,7 +410,7 @@ const ReviewCard = ({ review }) => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             className={`${
-              response ? "bg-green-500" : "bg-blue-500"
+              response ? "bg-green-500" : "bg-[#181c31]"
             } text-white px-4 py-2 rounded-full font-medium flex items-center`}
             onClick={() => setIsModalOpen(true)}
           >
@@ -424,7 +420,7 @@ const ReviewCard = ({ review }) => {
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            className="bg-blue-500 text-white px-4 py-2 rounded-full font-medium flex items-center"
+            className="bg-[#181c31] text-white px-4 py-2 rounded-full font-medium flex items-center"
           >
             <ThumbsUp size={18} className="mr-2" />
             Like
@@ -559,6 +555,7 @@ const ReviewsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const { data: session } = useSession();
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -568,7 +565,7 @@ const ReviewsPage = () => {
           const connectedPlatform = session.user.googleBusinessProfileConnected;
           console.log(connectedPlatform);
           const res = await fetch(
-            `https://api.echosync.ai/reviews/reviews?accessToken=${connectedPlatform.accessToken}&email=${session.user.email}`,
+            `${apiUrl}/reviews/reviews?accessToken=${connectedPlatform.accessToken}&email=${session.user.email}`,
             {
               headers: {
                 Authorization: `Bearer ${connectedPlatform.accessToken}`,
@@ -596,6 +593,33 @@ const ReviewsPage = () => {
     fetchReviews();
   }, [session]);
 
+  const handleBulkRespond = async (responses) => {
+    setIsLoading(true);
+    try {
+      // Simulate API call to send bulk responses
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // Update local state
+      setReviews((prevReviews) =>
+        prevReviews.map((review) => {
+          if (responses[review.reviewId]) {
+            return {
+              ...review,
+              reviewReply: { comment: responses[review.reviewId] },
+            };
+          }
+          return review;
+        }),
+      );
+
+      toast.success("Bulk responses sent successfully!");
+    } catch (error) {
+      console.error("Error sending bulk responses:", error);
+      toast.error("Failed to send bulk responses. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const filteredReviews = useMemo(() => {
     return reviews.filter((review) => {
       const platformMatch =
@@ -627,7 +651,7 @@ const ReviewsPage = () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="bg-blue-500 text-white px-4 py-2 rounded-full font-medium flex items-center"
+            className="bg-[#181c31] text-white px-4 py-2 rounded-full font-medium flex items-center"
           >
             <Zap size={18} className="mr-2" />
             Generate Report
@@ -635,6 +659,7 @@ const ReviewsPage = () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => setIsBulkModalOpen(true)}
             className="bg-purple-500 text-white px-4 py-2 rounded-full font-medium flex items-center"
           >
             <MessageCircle size={18} className="mr-2" />
@@ -677,7 +702,7 @@ const ReviewsPage = () => {
             <button
               className={`px-3 py-1 rounded-full ${
                 viewMode === "list"
-                  ? "bg-blue-500 text-white"
+                  ? "bg-[#181c31] text-white"
                   : "bg-gray-200 text-gray-700"
               }`}
               onClick={() => setViewMode("list")}
@@ -687,7 +712,7 @@ const ReviewsPage = () => {
             <button
               className={`px-3 py-1 rounded-full ${
                 viewMode === "grid"
-                  ? "bg-blue-500 text-white"
+                  ? "bg-[#181c31] text-white"
                   : "bg-gray-200 text-gray-700"
               }`}
               onClick={() => setViewMode("grid")}
@@ -754,12 +779,18 @@ const ReviewsPage = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center bg-blue-500 text-white px-6 py-3 rounded-full font-medium"
+              className="flex items-center bg-[#181c31] text-white px-6 py-3 rounded-full font-medium"
             >
               Load More <ChevronDown size={18} className="ml-2" />
             </motion.button>
           </div>
         )}
+      <BulkResponseModal
+        isOpen={isBulkModalOpen}
+        onClose={() => setIsBulkModalOpen(false)}
+        reviews={reviews}
+        onSendResponses={handleBulkRespond}
+      />
     </div>
   );
 };

@@ -12,7 +12,7 @@ const ReviewBubble = ({ color, children }) => (
 
 const Page = () => {
   return (
-    <div className="bg-gradient-to-br from-[#00072D] via-[#0A2472] to-blue-900 w-full h-full min-h-screen grid grid-cols-2 items-center">
+    <div className="bg-[#181c31] w-full h-full min-h-screen grid grid-cols-2 items-center">
       <div className="h-full flex flex-col justify-center items-center text-white p-8 relative overflow-hidden">
         <div className="relative w-[500px] h-[500px]">
           <div className="absolute inset-0 flex items-center justify-center">

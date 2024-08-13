@@ -1,64 +1,134 @@
 "use client";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-function ReviewGenerator() {
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Loader2, Send, RefreshCw } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
+export default function ReviewGenerator() {
   const [reviewText, setReviewText] = useState("");
   const [generatedResponse, setGeneratedResponse] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleReviewChange = (event: any) => {
+  const handleReviewChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
     setReviewText(event.target.value);
   };
 
-  const handleSubmit = async (event: any) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setIsLoading(true);
+    setError("");
 
-    // Simulate sending review to backend for AI generation (replace with actual API call)
-    const response: any = await simulateGenerateResponse(reviewText);
-    setGeneratedResponse(response);
+    try {
+      const response = await fetch(
+        "https://api.echosync.ai/reviews/generate-manual",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ user_review: reviewText }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to generate response");
+      }
+
+      const data = await response.json();
+      setGeneratedResponse(data.response);
+    } catch (err) {
+      setError(
+        "An error occurred while generating the response. Please try again.",
+      );
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    setReviewText("");
+    setGeneratedResponse("");
+    setError("");
   };
 
   return (
-    <div className="container mx-auto p-8 max-w-3xl bg-white mt-20 rounded-lg shadow-md">
-      <h1 className="text-2xl font-semibold mb-4">Generate Review Response</h1>
-      <p className="text-gray-600 mb-8">
-        Let our AI assistant help you craft professional and courteous replies
-        to customer reviews.
-      </p>
-      <form onSubmit={handleSubmit} className="flex flex-col">
-        <textarea
-          id="review-input"
-          placeholder="Paste the customer review here..."
-          className="p-4 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring focus:ring-blue-500"
-          value={reviewText}
-          onChange={handleReviewChange}
-        />
-        <Button
-          type="submit"
-          className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-          disabled={!reviewText.trim()}
-        >
-          Generate Response
-        </Button>
-      </form>
-      {generatedResponse && (
-        <div className="mt-8 p-4 border border-gray-300 rounded-md bg-gray-100">
-          <p className="font-medium">Generated Response:</p>
-          <p>{generatedResponse}</p>
-        </div>
-      )}
-    </div>
+    <Card className="w-full max-w-3xl mx-auto mt-20">
+      <CardHeader>
+        <CardTitle className="text-2xl font-semibold">
+          AI-Powered Review Response Generator
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-gray-600 mb-6">
+          Let our AI assistant craft professional and empathetic replies to
+          customer reviews. Simply paste the review, and we'll generate a
+          tailored response.
+        </p>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Textarea
+            placeholder="Paste the customer review here..."
+            value={reviewText}
+            onChange={handleReviewChange}
+            className="min-h-[150px]"
+          />
+          <div className="flex space-x-2">
+            <Button
+              type="submit"
+              disabled={!reviewText.trim() || isLoading}
+              className="flex-1 bg-[#181c31] text-white py-4"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Send className="mr-2 h-4 w-4" />
+                  Generate Response
+                </>
+              )}
+            </Button>
+            <Button type="button" variant="outline" onClick={handleReset}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Reset
+            </Button>
+          </div>
+        </form>
+        {error && (
+          <Alert variant="destructive" className="mt-4">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        {generatedResponse && (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="text-lg">Generated Response:</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-700">{generatedResponse}</p>
+            </CardContent>
+            <CardFooter className="bg-gray-50">
+              <p className="text-xs text-gray-500">
+                This response was generated by AI. Please review and adjust as
+                needed before sending to the customer.
+              </p>
+            </CardFooter>
+          </Card>
+        )}
+      </CardContent>
+    </Card>
   );
 }
-
-// Simulate sending review to backend (replace with actual API call)
-const simulateGenerateResponse = async (reviewText: any) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(
-        "Thank you for your feedback! We appreciate you taking the time to share your experience. We're sorry to hear that you encountered [issue from review]. We're always working to improve our [product/service], and your feedback is valuable to us. We've taken note of your concerns and will be sure to address them in the future.",
-      );
-    }, 1000); // Simulate processing time
-  });
-};
-
-export default ReviewGenerator;
