@@ -83,6 +83,7 @@ const ReviewDashboard = () => {
     totalReviews: 0,
     positiveReviews: 0,
     negativeReviews: 0,
+    responseRate: 0,
   });
   const [reviews, setReviews] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -126,6 +127,7 @@ const ReviewDashboard = () => {
             negativeReviews: reviewsData.filter(
               (r) => getRatingNumber(r.starRating) <= 2,
             ).length,
+            responseRate: data?.responseRate,
           });
           setReviews(reviewsData);
         } catch (err) {

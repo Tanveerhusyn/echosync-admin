@@ -581,6 +581,7 @@ const ReviewsPage = () => {
           setReviewMetrics({
             averageRating: data.locations[1].reviews.averageRating,
             totalReviews: data.locations[1].reviews.totalReviewCount,
+            responseRate: data?.responseRate,
           });
           setReviews(data.locations[1].reviews.reviews);
         } catch (err) {
@@ -686,10 +687,7 @@ const ReviewsPage = () => {
         <StatCard
           icon={CheckCircle}
           title="Response Rate"
-          value={`${(
-            (reviews.filter((r) => r.responded).length / reviews.length) *
-            100
-          ).toFixed(0)}%`}
+          value={`${reviewMetrics.responseRate || 0}%`}
           subtext="of reviews responded"
           color="border-blue-500"
         />
