@@ -648,7 +648,7 @@ const ReviewsPage = () => {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">Reviews Dashboard</h1>
         <div className="flex space-x-2">
-          <motion.button
+          {/* <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="bg-[#181c31] text-white px-4 py-2 rounded-full font-medium flex items-center"
@@ -664,7 +664,7 @@ const ReviewsPage = () => {
           >
             <MessageCircle size={18} className="mr-2" />
             Bulk Respond
-          </motion.button>
+          </motion.button> */}
         </div>
       </div>
 
