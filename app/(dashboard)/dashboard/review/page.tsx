@@ -280,7 +280,7 @@ const Modal = ({ isOpen, onClose, review }) => {
             </div>
 
             <div className="flex justify-between items-center p-6 bg-gray-50 border-t">
-              <div className="flex space-x-2">
+              {/* <div className="flex space-x-2">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -297,7 +297,7 @@ const Modal = ({ isOpen, onClose, review }) => {
                   <Flag size={18} className="mr-2" />
                   Flag
                 </motion.button>
-              </div>
+              </div> */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
