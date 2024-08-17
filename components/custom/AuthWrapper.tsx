@@ -9,8 +9,9 @@ interface AuthWrapperProps {
   session: any;
 }
 
-export default function AuthWrapper({ children, session }: AuthWrapperProps) {
+export default function AuthWrapper({ children }: AuthWrapperProps) {
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     if (session?.user) {

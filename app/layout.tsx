@@ -25,12 +25,12 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} overflow-hidden`}>
-        <AuthWrapper session={session}>
-          <Providers session={session}>
+        <Providers session={session}>
+          <AuthWrapper session={session}>
             <Toaster />
             {children}
-          </Providers>
-        </AuthWrapper>
+          </AuthWrapper>
+        </Providers>
       </body>
     </html>
   );
