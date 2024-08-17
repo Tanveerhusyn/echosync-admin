@@ -184,7 +184,10 @@ const ReviewDashboard = () => {
       </Alert>
     );
   }
-
+  const getRatingNumber = (rating) => {
+    const ratingMap = { ONE: 1, TWO: 2, THREE: 3, FOUR: 4, FIVE: 5 };
+    return ratingMap[rating] || 0;
+  };
   return (
     <div className="bg-white text-gray-800 min-h-screen p-8">
       <h1 className="text-4xl font-bold mb-8 text-left text-gray-800">
@@ -292,7 +295,7 @@ const ReviewDashboard = () => {
                   <span className="font-semibold">
                     {review.reviewer.displayName}
                   </span>{" "}
-                  left a {review.starRating.slice(-1)}-star review
+                  left a {getRatingNumber(review.starRating)}-star review
                 </p>
               </div>
             ))}
@@ -345,22 +348,27 @@ const ReviewDashboard = () => {
                     {review.reviewer.displayName}
                   </h3>
                   <div className="flex items-center">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        size={16}
-                        className={
-                          i < parseInt(review.starRating.slice(-1))
-                            ? "text-yellow-400"
-                            : "text-gray-300"
-                        }
-                        fill={
-                          i < parseInt(review.starRating.slice(-1))
-                            ? "currentColor"
-                            : "none"
-                        }
-                      />
-                    ))}
+                    <div className="flex items-center mt-1">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          size={18}
+                          className={
+                            i < getRatingNumber(review.starRating)
+                              ? "text-yellow-400"
+                              : "text-gray-300"
+                          }
+                          fill={
+                            i < getRatingNumber(review.starRating)
+                              ? "currentColor"
+                              : "none"
+                          }
+                        />
+                      ))}
+                      <span className="ml-2 text-sm text-gray-600">
+                        {new Date(review.createTime).toLocaleDateString()}
+                      </span>
+                    </div>
                     <span className="ml-2 text-sm text-gray-600">
                       {new Date(review.createTime).toLocaleDateString()}
                     </span>

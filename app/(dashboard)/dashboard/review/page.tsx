@@ -323,9 +323,7 @@ const Modal = ({ isOpen, onClose, review }) => {
 const ReviewCard = ({ review }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [response, setResponse] = useState(
-    review?.reviewReply?.comment || "Hello world",
-  );
+  const [response, setResponse] = useState(review?.reviewReply?.comment || "");
 
   const starRatingMap = {
     ONE: 1,
