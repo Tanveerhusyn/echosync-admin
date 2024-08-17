@@ -303,7 +303,7 @@ const ReviewDashboard = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+      {/* <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-semibold text-gray-800">All Reviews</h2>
           <div className="flex space-x-4">
@@ -387,7 +387,7 @@ const ReviewDashboard = () => {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

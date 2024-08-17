@@ -119,14 +119,14 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
         </div>
 
         <div className="flex items-center space-x-4">
-          <motion.button
+          {/* <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="relative text-gray-500 hover:text-[#0A2472]"
           >
             <Bell size={20} />
             <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-          </motion.button>
+          </motion.button> */}
 
           <div className="relative">
             <motion.div

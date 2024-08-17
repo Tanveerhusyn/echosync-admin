@@ -9,14 +9,16 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { Loader2, Send, RefreshCw } from "lucide-react";
+import { Loader2, Send, RefreshCw, Copy, Check } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 
 export default function ReviewGenerator() {
   const [reviewText, setReviewText] = useState("");
   const [generatedResponse, setGeneratedResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isCopied, setIsCopied] = useState(false);
 
   const handleReviewChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>,
@@ -61,6 +63,12 @@ export default function ReviewGenerator() {
     setReviewText("");
     setGeneratedResponse("");
     setError("");
+    setIsCopied(false);
+  };
+
+  const handleCopy = () => {
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
   };
 
   return (
@@ -115,7 +123,25 @@ export default function ReviewGenerator() {
         {generatedResponse && (
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle className="text-lg">Generated Response:</CardTitle>
+              <CardTitle className="text-lg flex justify-between items-center">
+                Generated Response:
+                <CopyToClipboard text={generatedResponse} onCopy={handleCopy}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={`transition-all duration-300 ease-in-out ${
+                      isCopied ? "bg-green-500 text-white" : "hover:bg-gray-100"
+                    }`}
+                  >
+                    {isCopied ? (
+                      <Check className="h-4 w-4 mr-2" />
+                    ) : (
+                      <Copy className="h-4 w-4 mr-2" />
+                    )}
+                    {isCopied ? "Copied!" : "Copy"}
+                  </Button>
+                </CopyToClipboard>
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-gray-700">{generatedResponse}</p>

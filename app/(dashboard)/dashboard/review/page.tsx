@@ -408,29 +408,29 @@ const ReviewCard = ({ review }) => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             className={`${
-              response ? "bg-green-500" : "bg-[#181c31]"
+              response ? "bg-green-500" : "bg-green-500"
             } text-white px-4 py-2 rounded-full font-medium flex items-center`}
             onClick={() => setIsModalOpen(true)}
           >
             <MessageCircle size={18} className="mr-2" />
             {response ? "Edit Response" : "Respond"}
           </motion.button>
-          <motion.button
+          {/* <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             className="bg-[#181c31] text-white px-4 py-2 rounded-full font-medium flex items-center"
           >
             <ThumbsUp size={18} className="mr-2" />
             Like
-          </motion.button>
+          </motion.button> */}
         </div>
-        <motion.button
+        {/* <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           className="text-red-500 hover:text-red-700"
         >
           <Flag size={18} />
-        </motion.button>
+        </motion.button> */}
       </div>
       {isExpanded && (
         <button
