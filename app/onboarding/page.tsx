@@ -157,7 +157,7 @@ export default function SessionBasedOnboardingFlow() {
         newCompletedSteps.businessInfo = true;
       } else if (user.status === "incomplete") {
         setCurrentStep(0); // Business Info step
-      } else if (user.status === "complete") {
+      } else {
         router.push("/dashboard");
       }
 

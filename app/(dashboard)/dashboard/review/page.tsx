@@ -554,6 +554,8 @@ const ReviewsPage = () => {
   const [error, setError] = useState(null);
   const { data: session } = useSession();
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+  const [ratingFilter, setRatingFilter] = useState("all");
+
   const starRatingMap = {
     ONE: 1,
     TWO: 2,
