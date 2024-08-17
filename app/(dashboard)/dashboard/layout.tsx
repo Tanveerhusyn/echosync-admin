@@ -16,14 +16,12 @@ export default function DashboardLayout({
   const session = {};
 
   return (
-    <Providers session={session}>
-      <div className="flex flex-col h-screen">
-        <Header toggleSidebar={toggleSidebar} />
-        <div className="flex flex-1 overflow-hidden">
-          <Sidebar isOpen={isSidebarOpen} />
-          <main className="flex-1 overflow-auto p-4">{children}</main>
-        </div>
+    <div className="flex flex-col h-screen">
+      <Header toggleSidebar={toggleSidebar} />
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar isOpen={isSidebarOpen} />
+        <main className="flex-1 overflow-auto p-4">{children}</main>
       </div>
-    </Providers>
+    </div>
   );
 }
