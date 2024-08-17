@@ -14,15 +14,16 @@ export default function AuthWrapper({ children, session }: AuthWrapperProps) {
 
   useEffect(() => {
     if (session?.user) {
-      if (session.user.status === "incomplete") {
-        router.push("/business-info");
-      } else if (session.user.status === "subscription") {
-        router.push("/subscription");
-      } else if (session.user.status === "complete") {
-        router.push("/dashboard");
-      } else if (session.user.status === "platform") {
-        router.push("/platform");
-      }
+      router.push("/onboarding");
+      // if (session.user.status === "incomplete") {
+      //   router.push("/business-info");
+      // } else if (session.user.status === "subscription") {
+      //   router.push("/subscription");
+      // } else if (session.user.status === "complete") {
+      //   router.push("/dashboard");
+      // } else if (session.user.status === "platform") {
+      //   router.push("/platform");
+      // }
     }
 
     console.log("session inside wrapper", session);

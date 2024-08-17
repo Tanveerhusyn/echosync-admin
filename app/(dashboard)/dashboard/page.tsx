@@ -138,7 +138,8 @@ const ReviewDashboard = () => {
       }
     };
     fetchReviews();
-  }, [session]);
+    console.log("Session inside dashboard", session);
+  }, []);
 
   const filteredReviews = reviews.filter(
     (review) =>

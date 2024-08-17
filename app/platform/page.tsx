@@ -75,7 +75,7 @@ const TripAdvisorLogo = () => (
   </svg>
 );
 
-const ConnectGoogleCard = () => {
+export const ConnectGoogleCard = () => {
   const { data: session, update } = useSession();
   const router = useRouter();
   const [isConnecting, setIsConnecting] = useState(false);
@@ -202,7 +202,7 @@ const ConnectGoogleCard = () => {
   );
 };
 
-const DisabledPlatformCard = ({ Logo, name }) => (
+export const DisabledPlatformCard = ({ Logo, name }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
