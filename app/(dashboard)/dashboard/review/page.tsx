@@ -554,6 +554,13 @@ const ReviewsPage = () => {
   const [error, setError] = useState(null);
   const { data: session } = useSession();
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+  const starRatingMap = {
+    ONE: 1,
+    TWO: 2,
+    THREE: 3,
+    FOUR: 4,
+    FIVE: 5,
+  };
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -619,22 +626,28 @@ const ReviewsPage = () => {
       setIsLoading(false);
     }
   };
+  const hasResponse = (review) => {
+    return !!review.reviewReply && !!review.reviewReply.comment;
+  };
   const filteredReviews = useMemo(() => {
     return reviews.filter((review) => {
       const platformMatch =
         selectedPlatform === "All" || review.platform === selectedPlatform;
       const responseMatch =
         responseFilter === "all" ||
-        (responseFilter === "responded" && review.responded) ||
-        (responseFilter === "notResponded" && !review.responded);
+        (responseFilter === "responded" && hasResponse(review)) ||
+        (responseFilter === "notResponded" && !hasResponse(review));
+      const ratingMatch =
+        ratingFilter === "all" ||
+        starRatingMap[review.starRating] === parseInt(ratingFilter);
       const searchMatch =
         review?.comment?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         review.reviewer.displayName
           .toLowerCase()
           .includes(searchTerm.toLowerCase());
-      return platformMatch && responseMatch && searchMatch;
+      return platformMatch && responseMatch && ratingMatch && searchMatch;
     });
-  }, [reviews, selectedPlatform, responseFilter, searchTerm]);
+  }, [reviews, selectedPlatform, responseFilter, ratingFilter, searchTerm]);
 
   if (isLoading) return <CreativeLoader />;
   if (error)
@@ -731,12 +744,22 @@ const ReviewsPage = () => {
           <div className="flex items-center space-x-2 mb-2 md:mb-0">
             <select
               className="bg-white border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={responseFilter}
-              onChange={(e) => setResponseFilter(e.target.value)}
+              value={`${responseFilter}_${ratingFilter}`}
+              onChange={(e) => {
+                const [newResponseFilter, newRatingFilter] =
+                  e.target.value.split("_");
+                setResponseFilter(newResponseFilter);
+                setRatingFilter(newRatingFilter);
+              }}
             >
-              <option value="all">All Reviews</option>
-              <option value="responded">Responded</option>
-              <option value="notResponded">Not Responded</option>
+              <option value="all_all">All Reviews</option>
+              <option value="responded_all">Responded</option>
+              <option value="notResponded_all">Not Responded</option>
+              <option value="all_5">5 Star</option>
+              <option value="all_4">4 Star</option>
+              <option value="all_3">3 Star</option>
+              <option value="all_2">2 Star</option>
+              <option value="all_1">1 Star</option>
             </select>
           </div>
           <div className="flex items-center space-x-2">
