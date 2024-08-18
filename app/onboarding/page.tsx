@@ -236,11 +236,14 @@ export default function SessionBasedOnboardingFlow() {
     if (currentStep === 0) {
       // Save business info
       try {
-        const response = await fetch("/api/save-business-info", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        });
+        const response = await fetch(
+          `https://api.echosync.ai/users/complete-google-signup`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData),
+          },
+        );
         if (!response.ok) throw new Error("Failed to save business info");
         setCompletedSteps({ ...completedSteps, businessInfo: true });
       } catch (error) {
