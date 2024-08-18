@@ -168,6 +168,8 @@ export default function SessionBasedOnboardingFlow() {
         companyName: user.companyName || "",
         phoneNumber: user.phoneNumber || "",
         aboutCompany: user.aboutCompany || "",
+        email: session?.user?.email,
+        isGoogleUser: true,
       });
     }
   }, [session]);
