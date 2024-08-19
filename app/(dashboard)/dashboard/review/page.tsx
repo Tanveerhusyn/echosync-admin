@@ -1,37 +1,24 @@
 "use client";
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import useTypeWriter from "@/hooks/useTypeWriter";
 import Link from "next/link";
 import action from "../../../actions";
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.echosync.ai";
 import BulkResponseModal from "@/components/custom/BulkResponseModal";
-
 import {
   Filter,
   ChevronDown,
   ChevronRight,
   Home,
-  Zap,
   TrendingUp,
   CheckCircle,
-  CheckSquare,
-  Loader2,
-} from "lucide-react";
-import {
-  Star,
-  X,
-  MessageCircle,
-  ThumbsUp,
-  Flag,
-  Send,
-  Sparkles,
   RefreshCw,
   ChevronUp,
 } from "lucide-react";
-
+import { Star, X, MessageCircle, Sparkles, Send } from "lucide-react";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
+import useReviewStore from "@/hooks/useReviewStore";
 
 const Modal = ({ isOpen, onClose, review }) => {
   const [response, setResponse] = useState("");
@@ -43,6 +30,13 @@ const Modal = ({ isOpen, onClose, review }) => {
   const displayedResponse = useTypeWriter(aiResponse);
 
   const { data: session } = useSession();
+  const { generateInsights, generateAIResponse, respondToReview } =
+    useReviewStore((state) => ({
+      generateInsights: state.generateInsights,
+      generateAIResponse: state.generateAIResponse,
+      respondToReview: state.respondToReview,
+    }));
+
   const starRatingMap = {
     ONE: 1,
     TWO: 2,
@@ -55,7 +49,9 @@ const Modal = ({ isOpen, onClose, review }) => {
 
   useEffect(() => {
     if (isOpen) {
-      generateInsights();
+      generateInsights(session, review).then((insights) =>
+        setInsights(insights),
+      );
     }
   }, [isOpen]);
 
@@ -65,58 +61,17 @@ const Modal = ({ isOpen, onClose, review }) => {
     }
   }, [displayedResponse]);
 
-  const generateInsights = async () => {
-    try {
-      const res = await fetch(`${apiUrl}/reviews/generate-insights`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          business_name: "Echosync",
-          business_context:
-            "Echosync is an AI-powered review management platform that helps businesses efficiently manage and respond to customer feedback, enhance their online reputation, and gain actionable insights from reviews.",
-          user_review: review.comment,
-          reviewer_name: review.reviewer.displayName,
-        }),
-      });
-      const data = await res.json();
-      setInsights(data.insights);
-    } catch (error) {
-      console.error("Error generating insights:", error);
-    }
-  };
-
-  const generateAIResponse = async () => {
+  const handleGenerateAIResponse = async () => {
     setIsGenerating(true);
-    try {
-      const res = await fetch(`${apiUrl}/reviews/generate-response`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          business_name: "Echosync",
-          business_context:
-            "Echosync is an AI-powered review management platform that helps businesses efficiently manage and respond to customer feedback, enhance their online reputation, and gain actionable insights from reviews.",
-          user_review: review.comment,
-          reviewer_name: review.reviewer.displayName,
-          insights: insights,
-        }),
-      });
-      const data = await res.json();
-      setAiResponse(data.response); // Set the AI-generated response
-      setEditableResponse(""); // Clear the editable response to allow typewriter effect to show
-    } catch (error) {
-      console.error("Error generating AI response:", error);
-    } finally {
-      setIsGenerating(false);
-    }
+    const aiResponse = await generateAIResponse(session, review, insights);
+    setAiResponse(aiResponse);
+    setEditableResponse("");
+    setIsGenerating(false);
   };
 
   const handleResponseChange = (e) => {
     setEditableResponse(e.target.value);
-    setAiResponse(""); // Clear AI response when user starts editing
+    setAiResponse("");
   };
 
   const handleSendResponse = async () => {
@@ -127,35 +82,9 @@ const Modal = ({ isOpen, onClose, review }) => {
 
     setIsSending(true);
     try {
-      console.log("Sending response:", session.user);
-      const connectedPlatform = session.user.googleBusinessProfileConnected;
-      const accessToken = connectedPlatform.accessToken;
-
-      const res = await fetch(
-        `${apiUrl}/reviews/reply-to-review?accessToken=${accessToken}&email=${session.user.email}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            reviewName: review.name,
-            replyText: editableResponse,
-          }),
-        },
-      );
-
-      if (!res.ok) {
-        throw new Error("Failed to send response");
-      }
-
-      const data = await res.json();
-      if (data.success == true) {
-        console.log("Response sent successfully:", data);
-        toast.success("Response sent successfully");
-        await action("refreshReviews");
-      }
-      // Close the modal after successful response
+      await respondToReview(session, review.name, editableResponse);
+      toast.success("Response sent successfully");
+      await action("refreshReviews");
     } catch (error) {
       console.error("Error sending response:", error);
     } finally {
@@ -264,7 +193,7 @@ const Modal = ({ isOpen, onClose, review }) => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="w-full flex items-center justify-center px-4 py-2 bg-[#181c31] text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300"
-                  onClick={generateAIResponse}
+                  onClick={handleGenerateAIResponse}
                   disabled={isGenerating}
                 >
                   {isGenerating ? (
@@ -280,24 +209,6 @@ const Modal = ({ isOpen, onClose, review }) => {
             </div>
 
             <div className="flex justify-between items-center p-6 bg-gray-50 border-t">
-              {/* <div className="flex space-x-2">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors"
-                >
-                  <ThumbsUp size={18} className="mr-2" />
-                  Helpful
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                >
-                  <Flag size={18} className="mr-2" />
-                  Flag
-                </motion.button>
-              </div> */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -415,22 +326,7 @@ const ReviewCard = ({ review }) => {
             <MessageCircle size={18} className="mr-2" />
             {response ? "Edit Response" : "Respond"}
           </motion.button>
-          {/* <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="bg-[#181c31] text-white px-4 py-2 rounded-full font-medium flex items-center"
-          >
-            <ThumbsUp size={18} className="mr-2" />
-            Like
-          </motion.button> */}
         </div>
-        {/* <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="text-red-500 hover:text-red-700"
-        >
-          <Flag size={18} />
-        </motion.button> */}
       </div>
       {isExpanded && (
         <button
@@ -543,115 +439,78 @@ const CreativeLoader = () => {
     </div>
   );
 };
+
 const ReviewsPage = () => {
-  const [selectedPlatform, setSelectedPlatform] = useState("All");
-  const [viewMode, setViewMode] = useState("list");
-  const [responseFilter, setResponseFilter] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [reviewMetrics, setReviewMetrics] = useState({});
-  const [reviews, setReviews] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const { data: session } = useSession();
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
-  const [ratingFilter, setRatingFilter] = useState("all");
 
-  const starRatingMap = {
-    ONE: 1,
-    TWO: 2,
-    THREE: 3,
-    FOUR: 4,
-    FIVE: 5,
-  };
+  const {
+    reviews,
+    reviewMetrics,
+    selectedPlatform,
+    viewMode,
+    responseFilter,
+    ratingFilter,
+    searchTerm,
+    isLoading,
+    error,
+    setSelectedPlatform,
+    setViewMode,
+    setResponseFilter,
+    setRatingFilter,
+    setSearchTerm,
+    fetchReviews,
+  } = useReviewStore((state) => ({
+    reviews: state.reviews,
+    reviewMetrics: state.reviewMetrics,
+    selectedPlatform: state.selectedPlatform,
+    viewMode: state.viewMode,
+    responseFilter: state.responseFilter,
+    ratingFilter: state.ratingFilter,
+    searchTerm: state.searchTerm,
+    isLoading: state.isLoading,
+    error: state.error,
+    setSelectedPlatform: state.setSelectedPlatform,
+    setViewMode: state.setViewMode,
+    setResponseFilter: state.setResponseFilter,
+    setRatingFilter: state.setRatingFilter,
+    setSearchTerm: state.setSearchTerm,
+    fetchReviews: state.fetchReviews,
+  }));
 
   useEffect(() => {
-    const fetchReviews = async () => {
-      if (session?.user?.googleBusinessProfileConnected) {
-        try {
-          setIsLoading(true);
-          const connectedPlatform = session.user.googleBusinessProfileConnected;
-          console.log(connectedPlatform);
-          const res = await fetch(
-            `${apiUrl}/reviews/reviews?accessToken=${connectedPlatform.accessToken}&email=${session.user.email}`,
-            {
-              headers: {
-                Authorization: `Bearer ${connectedPlatform.accessToken}`,
-              },
-              next: {
-                tags: ["refreshReviews"],
-              },
-            },
-          );
-          if (!res.ok) throw new Error("Failed to fetch reviews");
-          const data = await res.json();
-          console.log(data);
-          setReviewMetrics({
-            averageRating: data.locations[1].reviews.averageRating,
-            totalReviews: data.locations[1].reviews.totalReviewCount,
-            responseRate: data?.responseRate,
-          });
-          setReviews(data.locations[1].reviews.reviews);
-        } catch (err) {
-          setError(err.message);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
-    fetchReviews();
+    if (session) {
+      fetchReviews(session);
+    }
   }, [session]);
 
-  const handleBulkRespond = async (responses) => {
-    setIsLoading(true);
-    try {
-      // Simulate API call to send bulk responses
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+  // const handleBulkRespond = async (responses) => {
+  //   // setIsLoading(true);
+  //   try {
+  //     await new Promise((resolve) => setTimeout(resolve, 2000));
+  //     setReviews((prevReviews) =>
+  //       prevReviews.map((review) => {
+  //         if (responses[review.reviewId]) {
+  //           return {
+  //             ...review,
+  //             reviewReply: { comment: responses[review.reviewId] },
+  //           };
+  //         }
+  //         return review;
+  //       }),
+  //     );
+  //     toast.success("Bulk responses sent successfully!");
+  //   } catch (error) {
+  //     console.error("Error sending bulk responses:", error);
+  //     toast.error("Failed to send bulk responses. Please try again.");
+  //   } finally {
+  //     // setIsLoading(false);
+  //   }
+  // };
 
-      // Update local state
-      setReviews((prevReviews) =>
-        prevReviews.map((review) => {
-          if (responses[review.reviewId]) {
-            return {
-              ...review,
-              reviewReply: { comment: responses[review.reviewId] },
-            };
-          }
-          return review;
-        }),
-      );
+  const filteredReviews = useReviewStore((state) => state.getFilteredReviews);
 
-      toast.success("Bulk responses sent successfully!");
-    } catch (error) {
-      console.error("Error sending bulk responses:", error);
-      toast.error("Failed to send bulk responses. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  const hasResponse = (review) => {
-    return !!review.reviewReply && !!review.reviewReply.comment;
-  };
-  const filteredReviews = useMemo(() => {
-    return reviews.filter((review) => {
-      const platformMatch =
-        selectedPlatform === "All" || review.platform === selectedPlatform;
-      const responseMatch =
-        responseFilter === "all" ||
-        (responseFilter === "responded" && hasResponse(review)) ||
-        (responseFilter === "notResponded" && !hasResponse(review));
-      const ratingMatch =
-        ratingFilter === "all" ||
-        starRatingMap[review.starRating] === parseInt(ratingFilter);
-      const searchMatch =
-        review?.comment?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        review.reviewer.displayName
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase());
-      return platformMatch && responseMatch && ratingMatch && searchMatch;
-    });
-  }, [reviews, selectedPlatform, responseFilter, ratingFilter, searchTerm]);
-
-  if (reviews.length == 0 && isLoading) return <CreativeLoader />;
+  if (reviews.length === 0 && isLoading) return <CreativeLoader />;
   if (error)
     return <div className="text-center text-red-500 mt-8">{error}</div>;
 
@@ -661,25 +520,7 @@ const ReviewsPage = () => {
 
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">Reviews Dashboard</h1>
-        <div className="flex space-x-2">
-          {/* <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-[#181c31] text-white px-4 py-2 rounded-full font-medium flex items-center"
-          >
-            <Zap size={18} className="mr-2" />
-            Generate Report
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsBulkModalOpen(true)}
-            className="bg-purple-500 text-white px-4 py-2 rounded-full font-medium flex items-center"
-          >
-            <MessageCircle size={18} className="mr-2" />
-            Bulk Respond
-          </motion.button> */}
-        </div>
+        <div className="flex space-x-2"></div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -806,12 +647,12 @@ const ReviewsPage = () => {
             </motion.button>
           </div>
         )}
-      <BulkResponseModal
+      {/* <BulkResponseModal
         isOpen={isBulkModalOpen}
         onClose={() => setIsBulkModalOpen(false)}
         reviews={reviews}
         onSendResponses={handleBulkRespond}
-      />
+      /> */}
     </div>
   );
 };

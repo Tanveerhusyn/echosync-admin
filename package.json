@@ -72,7 +72,7 @@
     "uploadthing": "^5.7.4",
     "uuid": "^9.0.1",
     "zod": "^3.22.4",
-    "zustand": "^4.4.6"
+    "zustand": "^4.5.5"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
