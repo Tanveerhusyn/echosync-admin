@@ -17,6 +17,8 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
     if (session?.user) {
       if (session?.user?.status !== "complete") {
         router.push("/onboarding");
+      } else if (session?.user?.status === "complete") {
+        router.push("/dashboard");
       }
       // if (session.user.status === "incomplete") {
       //   router.push("/business-info");
