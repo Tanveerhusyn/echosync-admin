@@ -651,7 +651,7 @@ const ReviewsPage = () => {
     });
   }, [reviews, selectedPlatform, responseFilter, ratingFilter, searchTerm]);
 
-  if (isLoading) return <CreativeLoader />;
+  if (reviews.length == 0 && isLoading) return <CreativeLoader />;
   if (error)
     return <div className="text-center text-red-500 mt-8">{error}</div>;
 

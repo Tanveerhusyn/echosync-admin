@@ -171,7 +171,7 @@ const ReviewDashboard = () => {
     },
   ];
 
-  if (isLoading) {
+  if (reviews.length == 0 && isLoading) {
     return <CreativeLoader />;
   }
 
