@@ -14,6 +14,7 @@ import {
   CheckCircle,
   RefreshCw,
   ChevronUp,
+  ThumbsUp,
 } from "lucide-react";
 import { Star, X, MessageCircle, Sparkles, Send } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -454,12 +455,14 @@ const ReviewsPage = () => {
     searchTerm,
     isLoading,
     error,
+    selectedLocationId,
     setSelectedPlatform,
     setViewMode,
     setResponseFilter,
     setRatingFilter,
     setSearchTerm,
-    fetchReviews,
+    fetchReviewsAndLocations,
+    fetchReviewsForLocation,
   } = useReviewStore((state) => ({
     reviews: state.reviews,
     reviewMetrics: state.reviewMetrics,
@@ -470,47 +473,40 @@ const ReviewsPage = () => {
     searchTerm: state.searchTerm,
     isLoading: state.isLoading,
     error: state.error,
+    selectedLocationId: state.selectedLocationId,
     setSelectedPlatform: state.setSelectedPlatform,
     setViewMode: state.setViewMode,
     setResponseFilter: state.setResponseFilter,
     setRatingFilter: state.setRatingFilter,
     setSearchTerm: state.setSearchTerm,
-    fetchReviews: state.fetchReviews,
+    fetchReviewsAndLocations: state.fetchReviewsAndLocations,
+    fetchReviewsForLocation: state.fetchReviewsForLocation,
   }));
 
   useEffect(() => {
     if (session) {
-      fetchReviews(session);
+      console.log("Session available, fetching reviews and locations...");
+      fetchReviewsAndLocations(session);
+    } else {
+      console.log("No session available yet");
     }
-  }, [session]);
+  }, [session, fetchReviewsAndLocations]);
 
-  // const handleBulkRespond = async (responses) => {
-  //   // setIsLoading(true);
-  //   try {
-  //     await new Promise((resolve) => setTimeout(resolve, 2000));
-  //     setReviews((prevReviews) =>
-  //       prevReviews.map((review) => {
-  //         if (responses[review.reviewId]) {
-  //           return {
-  //             ...review,
-  //             reviewReply: { comment: responses[review.reviewId] },
-  //           };
-  //         }
-  //         return review;
-  //       }),
-  //     );
-  //     toast.success("Bulk responses sent successfully!");
-  //   } catch (error) {
-  //     console.error("Error sending bulk responses:", error);
-  //     toast.error("Failed to send bulk responses. Please try again.");
-  //   } finally {
-  //     // setIsLoading(false);
-  //   }
-  // };
+  useEffect(() => {
+    if (session && selectedLocationId) {
+      console.log(
+        "Selected location changed, fetching reviews...",
+        selectedLocationId,
+      );
+      fetchReviewsForLocation(session, selectedLocationId);
+    }
+  }, [session, selectedLocationId, fetchReviewsForLocation]);
 
-  const filteredReviews = useReviewStore((state) => state.getFilteredReviews);
+  const filteredReviews = useReviewStore((state) => state.getFilteredReviews());
+  console.log("Filtered reviews:", filteredReviews);
 
-  if (reviews.length === 0 && isLoading) return <CreativeLoader />;
+  if (!reviews || (reviews.length === 0 && isLoading))
+    return <CreativeLoader />;
   if (error)
     return <div className="text-center text-red-500 mt-8">{error}</div>;
 

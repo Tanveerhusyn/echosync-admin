@@ -1,6 +1,9 @@
 import { create } from "zustand";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.echosync.ai";
+// const apiUrl = "http://localhost:5000";
 
 const useReviewStore = create((set, get) => ({
   reviews: [],
@@ -29,9 +32,99 @@ const useReviewStore = create((set, get) => ({
   setIsLoading: (loading) => set({ isLoading: loading }),
   setError: (error) => set({ error }),
   setLocations: (locations) => set({ locations }),
-  setSelectedLocationId: (locationId) =>
-    set({ selectedLocationId: locationId }),
 
+  setSelectedLocationId: (locationId) => {
+    set({ selectedLocationId: locationId });
+    const { locations } = get();
+    const selectedLocation = locations.find((loc) => loc.name === locationId);
+    if (selectedLocation) {
+      get().setReviewsForLocation(selectedLocation);
+    }
+  },
+
+  setReviewsForLocation: (location) => {
+    if (location.reviews && location.reviews.reviews) {
+      set({
+        reviews: location.reviews.reviews,
+        reviewMetrics: {
+          averageRating: location.reviews.averageRating || 0,
+          totalReviews: location.reviews.totalReviewCount || 0,
+          responseRate: location.responseRate || 0,
+        },
+      });
+    } else {
+      set({
+        reviews: [],
+        reviewMetrics: {
+          averageRating: 0,
+          totalReviews: 0,
+          responseRate: 0,
+        },
+      });
+    }
+  },
+
+  fetchReviewsAndLocations: async (session) => {
+    const { setIsLoading, setError, setLocations, setSelectedLocationId } =
+      get();
+
+    if (session?.user?.googleBusinessProfileConnected) {
+      try {
+        setIsLoading(true);
+        const connectedPlatform = session.user.googleBusinessProfileConnected;
+        const res = await fetch(
+          `${apiUrl}/reviews/reviews?accessToken=${connectedPlatform.accessToken}&email=${session.user.email}`,
+          {
+            headers: {
+              Authorization: `Bearer ${connectedPlatform.accessToken}`,
+            },
+          },
+        );
+        if (!res.ok) throw new Error("Failed to fetch reviews and locations");
+        const data = await res.json();
+
+        setLocations(data.locations);
+        if (data.locations.length > 0) {
+          const locationWithReviews = data.locations.find(
+            (loc) => loc.reviews && loc.reviews.reviews,
+          );
+          if (locationWithReviews) {
+            setSelectedLocationId(locationWithReviews.name);
+          } else {
+            setSelectedLocationId(data.locations[0].name);
+          }
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      console.log("googleBusinessProfileConnected not available");
+    }
+  },
+
+  fetchReviewsForLocation: async (session, locationId) => {
+    const { setIsLoading, setError, locations, setReviewsForLocation } = get();
+
+    if (session?.user?.googleBusinessProfileConnected) {
+      try {
+        setIsLoading(true);
+        const location = locations.find((loc) => loc.name === locationId);
+        if (location) {
+          setReviewsForLocation(location);
+        } else {
+          throw new Error("Location not found");
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      console.log("googleBusinessProfileConnected not available");
+    }
+  },
   fetchLocations: async (session) => {
     const { setIsLoading, setError, setLocations } = get();
     if (session?.user?.googleBusinessProfileConnected) {
@@ -48,6 +141,7 @@ const useReviewStore = create((set, get) => ({
         );
         if (!res.ok) throw new Error("Failed to fetch locations");
         const data = await res.json();
+        console.log("locations", data.locations);
         setLocations(data.locations);
         if (data.locations.length > 0) {
           get().setSelectedLocationId(data.locations[0].id);
@@ -61,6 +155,8 @@ const useReviewStore = create((set, get) => ({
   },
 
   fetchReviews: async (session) => {
+    console.log("fetchReviews called with session:", session);
+
     const {
       setIsLoading,
       setError,
@@ -68,6 +164,8 @@ const useReviewStore = create((set, get) => ({
       setReviewMetrics,
       selectedLocationId,
     } = get();
+
+    console.log("selectedLocationId", selectedLocationId);
     if (session?.user?.googleBusinessProfileConnected && selectedLocationId) {
       try {
         setIsLoading(true);
@@ -85,6 +183,7 @@ const useReviewStore = create((set, get) => ({
         const locationData = data.locations.find(
           (location) => location.id === selectedLocationId,
         );
+        console.log("locationData", locationData);
         if (locationData) {
           setReviewMetrics({
             averageRating: locationData.reviews.averageRating,
@@ -258,6 +357,11 @@ const useReviewStore = create((set, get) => ({
       ratingFilter,
       searchTerm,
     } = get();
+
+    if (!Array.isArray(reviews)) {
+      return [];
+    }
+
     return reviews.filter((review) => {
       const platformMatch =
         selectedPlatform === "All" || review.platform === selectedPlatform;

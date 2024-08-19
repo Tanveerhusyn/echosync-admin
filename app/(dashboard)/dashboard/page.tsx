@@ -24,7 +24,7 @@ import {
 } from "recharts";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { motion } from "framer-motion";
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.echosync.ai";
+import useReviewStore from "@/hooks/useReviewStore";
 
 const CreativeLoader = () => {
   const iconVariants = {
@@ -78,75 +78,38 @@ const CreativeLoader = () => {
   );
 };
 const ReviewDashboard = () => {
-  const [reviewMetrics, setReviewMetrics] = useState({
-    averageRating: 0,
-    totalReviews: 0,
-    positiveReviews: 0,
-    negativeReviews: 0,
-    responseRate: 0,
-  });
-  const [reviews, setReviews] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const { data: session } = useSession();
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterRating, setFilterRating] = useState("all");
+  const {
+    reviews,
+    reviewMetrics,
+    selectedLocationId,
+    locations,
+    isLoading,
+    error,
+    fetchReviewsAndLocations,
+    setSearchTerm,
+    setRatingFilter,
+    getFilteredReviews,
+  } = useReviewStore((state) => ({
+    reviews: state.reviews,
+    reviewMetrics: state.reviewMetrics,
+    selectedLocationId: state.selectedLocationId,
+    locations: state.locations,
+    isLoading: state.isLoading,
+    error: state.error,
+    fetchReviewsAndLocations: state.fetchReviewsAndLocations,
+    setSearchTerm: state.setSearchTerm,
+    setRatingFilter: state.setRatingFilter,
+    getFilteredReviews: state.getFilteredReviews,
+  }));
 
   useEffect(() => {
-    const fetchReviews = async () => {
-      if (session?.user) {
-        try {
-          setIsLoading(true);
-          console.log("Fetching reviews...", session.user);
-          const connectedPlatform = session.user.googleBusinessProfileConnected;
-          const res = await fetch(
-            `${apiUrl}/reviews/reviews?accessToken=${connectedPlatform.accessToken}&email=${session.user.email}`,
-            {
-              headers: {
-                Authorization: `Bearer ${connectedPlatform.accessToken}`,
-              },
-            },
-          );
-          if (!res.ok) throw new Error("Failed to fetch reviews");
-          const data = await res.json();
-          const reviewsData = data.locations[1].reviews.reviews;
+    if (session?.user) {
+      fetchReviewsAndLocations(session);
+    }
+  }, [session, fetchReviewsAndLocations]);
 
-          // Helper function to convert string rating to number
-          const getRatingNumber = (rating) => {
-            const ratingMap = { ONE: 1, TWO: 2, THREE: 3, FOUR: 4, FIVE: 5 };
-            return ratingMap[rating] || 0;
-          };
-
-          setReviewMetrics({
-            averageRating: data.locations[1].reviews.averageRating,
-            totalReviews: data.locations[1].reviews.totalReviewCount,
-            positiveReviews: reviewsData.filter(
-              (r) => getRatingNumber(r.starRating) >= 4,
-            ).length,
-            negativeReviews: reviewsData.filter(
-              (r) => getRatingNumber(r.starRating) <= 2,
-            ).length,
-            responseRate: data?.responseRate,
-          });
-          setReviews(reviewsData);
-        } catch (err) {
-          setError(err.message);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
-    fetchReviews();
-    console.log("Session inside dashboard", session);
-  }, []);
-
-  const filteredReviews = reviews.filter(
-    (review) =>
-      review.comment.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (filterRating === "all" ||
-        parseInt(review.starRating.slice(-1)) === parseInt(filterRating)),
-  );
+  const filteredReviews = getFilteredReviews();
 
   const chartData = [
     {
@@ -171,7 +134,7 @@ const ReviewDashboard = () => {
     },
   ];
 
-  if (reviews.length == 0 && isLoading) {
+  if (reviews.length === 0 && isLoading) {
     return <CreativeLoader />;
   }
 
@@ -184,14 +147,17 @@ const ReviewDashboard = () => {
       </Alert>
     );
   }
-  const getRatingNumber = (rating) => {
-    const ratingMap = { ONE: 1, TWO: 2, THREE: 3, FOUR: 4, FIVE: 5 };
-    return ratingMap[rating] || 0;
+
+  const getCurrentLocationName = () => {
+    const currentLocation = locations.find(
+      (loc) => loc.name === selectedLocationId,
+    );
+    return currentLocation ? currentLocation.title : "All Locations";
   };
   return (
     <div className="bg-white text-gray-800 min-h-screen p-8">
       <h1 className="text-4xl font-bold mb-8 text-left text-gray-800">
-        Review Dashboard
+        Review Dashboard - {getCurrentLocationName()}
       </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -232,7 +198,10 @@ const ReviewDashboard = () => {
           <div className="flex items-center">
             <ThumbsUp className="text-green-500 mr-2" size={32} />
             <span className="text-4xl font-bold text-gray-800">
-              {reviewMetrics.positiveReviews}
+              {
+                reviews.filter((r) => ["FOUR", "FIVE"].includes(r.starRating))
+                  .length
+              }
             </span>
           </div>
           <p className="text-sm text-gray-600 mt-2">4 and 5 star ratings</p>
@@ -245,7 +214,10 @@ const ReviewDashboard = () => {
           <div className="flex items-center">
             <ThumbsDown className="text-red-500 mr-2" size={32} />
             <span className="text-4xl font-bold text-gray-800">
-              {reviewMetrics.negativeReviews}
+              {
+                reviews.filter((r) => ["ONE", "TWO"].includes(r.starRating))
+                  .length
+              }
             </span>
           </div>
           <p className="text-sm text-gray-600 mt-2">1 and 2 star ratings</p>
@@ -286,7 +258,7 @@ const ReviewDashboard = () => {
               >
                 <div
                   className={`w-3 h-3 rounded-full mr-3 ${
-                    parseInt(review.starRating.slice(-1)) >= 4
+                    ["FOUR", "FIVE"].includes(review.starRating)
                       ? "bg-green-500"
                       : "bg-red-500"
                   }`}
@@ -295,7 +267,7 @@ const ReviewDashboard = () => {
                   <span className="font-semibold">
                     {review.reviewer.displayName}
                   </span>{" "}
-                  left a {getRatingNumber(review.starRating)}-star review
+                  left a {review.starRating.toLowerCase()}-star review
                 </p>
               </div>
             ))}
@@ -313,21 +285,19 @@ const ReviewDashboard = () => {
                 type="text"
                 placeholder="Search reviews..."
                 className="pl-10 pr-4 py-2 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <select
               className="bg-gray-100 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={filterRating}
-              onChange={(e) => setFilterRating(e.target.value)}
+              onChange={(e) => setRatingFilter(e.target.value)}
             >
               <option value="all">All Ratings</option>
-              <option value="5">5 Stars</option>
-              <option value="4">4 Stars</option>
-              <option value="3">3 Stars</option>
-              <option value="2">2 Stars</option>
-              <option value="1">1 Star</option>
+              <option value="FIVE">5 Stars</option>
+              <option value="FOUR">4 Stars</option>
+              <option value="THREE">3 Stars</option>
+              <option value="TWO">2 Stars</option>
+              <option value="ONE">1 Star</option>
             </select>
           </div>
         </div>
@@ -354,20 +324,25 @@ const ReviewDashboard = () => {
                           key={i}
                           size={18}
                           className={
-                            i < getRatingNumber(review.starRating)
+                            i <
+                            ["ONE", "TWO", "THREE", "FOUR", "FIVE"].indexOf(
+                              review.starRating,
+                            ) +
+                              1
                               ? "text-yellow-400"
                               : "text-gray-300"
                           }
                           fill={
-                            i < getRatingNumber(review.starRating)
+                            i <
+                            ["ONE", "TWO", "THREE", "FOUR", "FIVE"].indexOf(
+                              review.starRating,
+                            ) +
+                              1
                               ? "currentColor"
                               : "none"
                           }
                         />
                       ))}
-                      <span className="ml-2 text-sm text-gray-600">
-                        {new Date(review.createTime).toLocaleDateString()}
-                      </span>
                     </div>
                     <span className="ml-2 text-sm text-gray-600">
                       {new Date(review.createTime).toLocaleDateString()}
