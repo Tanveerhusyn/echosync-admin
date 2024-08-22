@@ -483,14 +483,14 @@ const ReviewsPage = () => {
     fetchReviewsForLocation: state.fetchReviewsForLocation,
   }));
 
-  useEffect(() => {
-    if (session) {
-      console.log("Session available, fetching reviews and locations...");
-      fetchReviewsAndLocations(session);
-    } else {
-      console.log("No session available yet");
-    }
-  }, [session, fetchReviewsAndLocations]);
+  // useEffect(() => {
+  //   if (session) {
+  //     console.log("Session available, fetching reviews and locations...");
+  //     fetchReviewsAndLocations(session);
+  //   } else {
+  //     console.log("No session available yet");
+  //   }
+  // }, [session, fetchReviewsAndLocations]);
 
   useEffect(() => {
     if (session && selectedLocationId) {

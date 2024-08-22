@@ -2,8 +2,8 @@ import { create } from "zustand";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.echosync.ai";
-// const apiUrl = "http://localhost:5000";
+// const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.echosync.ai";
+const apiUrl = "https://api.echosync.ai";
 
 const useReviewStore = create((set, get) => ({
   reviews: [],

@@ -17,8 +17,14 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
     if (session?.user) {
       if (session?.user?.status !== "complete") {
         router.push("/onboarding");
-      } else if (session?.user?.status === "complete") {
-        router.push("/dashboard");
+      } else if (
+        session?.user?.selectedLocations?.length > 0 &&
+        session?.user?.status === "complete"
+      ) {
+        if (!location.pathname.startsWith("/dashboard")) {
+          console.log("redirecting to dashboard", location.pathname);
+          router.push("/dashboard");
+        }
       }
       // if (session.user.status === "incomplete") {
       //   router.push("/business-info");
