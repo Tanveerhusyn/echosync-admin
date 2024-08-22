@@ -719,7 +719,7 @@ export default function SessionBasedOnboardingFlow() {
             exit={{ opacity: 0, y: -50 }}
           >
             <h2 className="text-2xl font-bold mb-6">Choose your plan</h2>
-            {activatedPlan == null ? (
+            {activatedPlan ? (
               <div
                 className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6"
                 role="alert"
