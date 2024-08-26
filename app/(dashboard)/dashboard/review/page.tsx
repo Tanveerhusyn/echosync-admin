@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import useTypeWriter from "@/hooks/useTypeWriter";
 import Link from "next/link";
@@ -28,7 +28,9 @@ const Modal = ({ isOpen, onClose, review }) => {
   const [aiResponse, setAiResponse] = useState("");
   const [insights, setInsights] = useState([]);
   const [isSending, setIsSending] = useState(false);
-  const displayedResponse = useTypeWriter(aiResponse);
+  const [triggerTypewriter, setTriggerTypewriter] = useState(0);
+
+  const displayedResponse = useTypeWriter(aiResponse, 10, triggerTypewriter);
 
   const { data: session } = useSession();
   const { generateInsights, generateAIResponse, respondToReview } =
@@ -57,22 +59,23 @@ const Modal = ({ isOpen, onClose, review }) => {
   }, [isOpen]);
 
   useEffect(() => {
-    if (aiResponse) {
+    if (displayedResponse) {
       setEditableResponse(displayedResponse);
     }
   }, [displayedResponse]);
 
   const handleGenerateAIResponse = async () => {
     setIsGenerating(true);
-    const aiResponse = await generateAIResponse(session, review, insights);
-    setAiResponse(aiResponse);
-    setEditableResponse("");
+    setEditableResponse(""); // Clear existing text
+    setAiResponse(""); // Clear existing AI response
+    const newAiResponse = await generateAIResponse(session, review, insights);
+    setAiResponse(newAiResponse);
+    setTriggerTypewriter((prev) => prev + 1); // Increment to trigger typewriter effect
     setIsGenerating(false);
   };
 
   const handleResponseChange = (e) => {
     setEditableResponse(e.target.value);
-    setAiResponse("");
   };
 
   const handleSendResponse = async () => {
@@ -463,50 +466,32 @@ const ReviewsPage = () => {
     setSearchTerm,
     fetchReviewsAndLocations,
     fetchReviewsForLocation,
-  } = useReviewStore((state) => ({
-    reviews: state.reviews,
-    reviewMetrics: state.reviewMetrics,
-    selectedPlatform: state.selectedPlatform,
-    viewMode: state.viewMode,
-    responseFilter: state.responseFilter,
-    ratingFilter: state.ratingFilter,
-    searchTerm: state.searchTerm,
-    isLoading: state.isLoading,
-    error: state.error,
-    selectedLocationId: state.selectedLocationId,
-    setSelectedPlatform: state.setSelectedPlatform,
-    setViewMode: state.setViewMode,
-    setResponseFilter: state.setResponseFilter,
-    setRatingFilter: state.setRatingFilter,
-    setSearchTerm: state.setSearchTerm,
-    fetchReviewsAndLocations: state.fetchReviewsAndLocations,
-    fetchReviewsForLocation: state.fetchReviewsForLocation,
-  }));
+    getFilteredReviews,
+  } = useReviewStore();
 
-  // useEffect(() => {
-  //   if (session) {
-  //     console.log("Session available, fetching reviews and locations...");
-  //     fetchReviewsAndLocations(session);
-  //   } else {
-  //     console.log("No session available yet");
-  //   }
-  // }, [session, fetchReviewsAndLocations]);
+  const fetchInitialData = useCallback(async () => {
+    if (session && !selectedLocationId) {
+      await fetchReviewsAndLocations(session);
+    }
+  }, [session, selectedLocationId, fetchReviewsAndLocations]);
 
-  useEffect(() => {
+  const fetchLocationReviews = useCallback(async () => {
     if (session && selectedLocationId) {
-      console.log(
-        "Selected location changed, fetching reviews...",
-        selectedLocationId,
-      );
-      fetchReviewsForLocation(session, selectedLocationId);
+      await fetchReviewsForLocation(session, selectedLocationId);
     }
   }, [session, selectedLocationId, fetchReviewsForLocation]);
 
-  const filteredReviews = useReviewStore((state) => state.getFilteredReviews());
-  console.log("Filtered reviews:", filteredReviews);
+  useEffect(() => {
+    fetchInitialData();
+  }, [fetchInitialData]);
 
-  if (!reviews || (reviews.length === 0 && isLoading))
-    return <CreativeLoader />;
+  useEffect(() => {
+    fetchLocationReviews();
+  }, [fetchLocationReviews]);
+
+  const filteredReviews = getFilteredReviews();
+
+  if (isLoading && reviews.length === 0) return <CreativeLoader />;
   if (error)
     return <div className="text-center text-red-500 mt-8">{error}</div>;
 
@@ -516,7 +501,6 @@ const ReviewsPage = () => {
 
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">Reviews Dashboard</h1>
-        <div className="flex space-x-2"></div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

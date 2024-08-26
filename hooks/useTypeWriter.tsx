@@ -1,9 +1,13 @@
-"use client";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
-const useTypewriter = (text, speed = 10) => {
+const useTypeWriter = (text, speed = 10, trigger = 0) => {
   const [displayedText, setDisplayedText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    setDisplayedText("");
+    setCurrentIndex(0);
+  }, [text, trigger]);
 
   useEffect(() => {
     if (currentIndex < text.length) {
@@ -19,4 +23,4 @@ const useTypewriter = (text, speed = 10) => {
   return displayedText;
 };
 
-export default useTypewriter;
+export default useTypeWriter;
