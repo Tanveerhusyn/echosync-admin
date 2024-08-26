@@ -88,7 +88,7 @@ const Modal = ({ isOpen, onClose, review }) => {
     try {
       await respondToReview(session, review.name, editableResponse);
       toast.success("Response sent successfully");
-      await action("refreshReviews");
+      // await action("refreshReviews");
     } catch (error) {
       console.error("Error sending response:", error);
     } finally {

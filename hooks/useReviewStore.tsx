@@ -90,6 +90,9 @@ const useReviewStore = create((set, get) => ({
             headers: {
               Authorization: `Bearer ${connectedPlatform.accessToken}`,
             },
+            next: {
+              tags: ["refreshReviews"],
+            },
           },
         );
         if (!res.ok) throw new Error("Failed to fetch reviews for location");
