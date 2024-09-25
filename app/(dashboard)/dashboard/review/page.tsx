@@ -467,6 +467,7 @@ const ReviewsPage = () => {
     fetchReviewsAndLocations,
     fetchReviewsForLocation,
     getFilteredReviews,
+    respondToReview,
   } = useReviewStore();
 
   const fetchInitialData = useCallback(async () => {
@@ -487,7 +488,7 @@ const ReviewsPage = () => {
 
   useEffect(() => {
     fetchLocationReviews();
-  }, [fetchLocationReviews]);
+  }, [fetchLocationReviews, reviews]);
 
   const filteredReviews = getFilteredReviews();
 

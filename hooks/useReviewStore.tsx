@@ -241,6 +241,13 @@ const useReviewStore = create((set, get) => ({
       searchTerm,
     } = get();
 
+    // Check if reviews is an array before filtering
+    if (!Array.isArray(reviews)) {
+      return [];
+    }
+
+    console.log("reviews inside getFiltered Reviews", reviews);
+
     return reviews?.filter((review) => {
       const platformMatch =
         selectedPlatform === "All" || review.platform === selectedPlatform;

@@ -114,23 +114,23 @@ const ReviewDashboard = () => {
   const chartData = [
     {
       name: "1 Star",
-      value: reviews.filter((r) => r.starRating === "ONE").length,
+      value: reviews?.filter((r) => r.starRating === "ONE").length,
     },
     {
       name: "2 Stars",
-      value: reviews.filter((r) => r.starRating === "TWO").length,
+      value: reviews?.filter((r) => r.starRating === "TWO").length,
     },
     {
       name: "3 Stars",
-      value: reviews.filter((r) => r.starRating === "THREE").length,
+      value: reviews?.filter((r) => r.starRating === "THREE").length,
     },
     {
       name: "4 Stars",
-      value: reviews.filter((r) => r.starRating === "FOUR").length,
+      value: reviews?.filter((r) => r.starRating === "FOUR").length,
     },
     {
       name: "5 Stars",
-      value: reviews.filter((r) => r.starRating === "FIVE").length,
+      value: reviews?.filter((r) => r.starRating === "FIVE").length,
     },
   ];
 
@@ -199,7 +199,7 @@ const ReviewDashboard = () => {
             <ThumbsUp className="text-green-500 mr-2" size={32} />
             <span className="text-4xl font-bold text-gray-800">
               {
-                reviews.filter((r) => ["FOUR", "FIVE"].includes(r.starRating))
+                reviews?.filter((r) => ["FOUR", "FIVE"].includes(r.starRating))
                   .length
               }
             </span>
