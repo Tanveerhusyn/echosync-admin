@@ -1,7 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { redirect } from "next/dist/server/api-utils";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.echosync.ai";
 

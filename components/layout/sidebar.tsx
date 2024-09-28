@@ -71,11 +71,11 @@ const DashboardNav = ({ items, setOpen }: DashboardNavProps) => {
   );
 };
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen }: { isOpen: boolean }) {
   return (
     <motion.nav
       initial={{ x: -300, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
+      animate={{ x: isOpen ? 0 : -300, opacity: isOpen ? 1 : 0 }}
       transition={{ type: "spring", stiffness: 100, damping: 20 }}
       className={cn(
         "relative  hidden h-screen pt-12 lg:block w-[250px] mx-2",

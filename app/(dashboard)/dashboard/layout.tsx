@@ -1,16 +1,14 @@
 "use client";
-import React, { useState } from "react";
 import Header from "@/components/layout/header";
-import Providers from "@/components/layout/providers";
 import Sidebar from "@/components/layout/sidebar";
-import { SessionProvider } from "next-auth/react";
+import React, { useState } from "react";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const session = {};
